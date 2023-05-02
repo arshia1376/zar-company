@@ -1,0 +1,419 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.1",
+    "contact": {
+      "email": "arshiasafikhani@cyberoxi.com"
+    },
+    "title": "Node Zar Project Api doc",
+    "description": "Find out how your APIs work",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "192.168.4.29:8080",
+  "basePath": "/api/",
+  "tags": [
+    {
+      "name": "Boxes",
+      "description": "All Boxes Apis"
+    },
+    {
+      "name": "materials",
+      "description": "All materials Apis"
+    },
+    {
+      "name": "admin",
+      "description": "All admin Apis"
+    }
+
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "ApiKeyAuth":{
+      "type": "apiKey",
+      "in": "header",
+      "name": "x-auth-token"
+
+    }
+  },
+  "paths": {
+
+    "/box/getListForBox": {
+      "get": {
+        "summary": "get all boxes",
+        "tags": [
+          "Boxes"
+        ],
+        "description": "Boxes",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned list of boxes",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        }
+      }
+    },
+    "/box/getIdBox/{id}": {
+      "get": {
+        "summary": "get id box",
+        "tags": [
+          "Boxes"
+        ],
+        "description": "Boxes",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "get box by id",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned list of boxes",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        }
+      }
+    },
+    "/box/updateBox/{id}": {
+      "put": {
+        "summary": "put id box",
+        "tags": [
+          "Boxes"
+        ],
+        "description": "Boxes",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "put box by id",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          },
+          {
+            "name": "box",
+            "in": "body",
+            "description": "update box",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned list of boxes",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        }
+      }
+    },
+    "/box/addboxToRecipe": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "create box",
+        "tags": [
+          "Boxes"
+        ],
+        "description": "Boxes",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "box",
+            "in": "body",
+            "description": "create box",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned create box",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        }
+      }
+    },
+    "/box/deleteBox/{id}": {
+      "delete": {
+        "summary": "delete id box",
+        "tags": [
+          "Boxes"
+        ],
+        "description": "Boxes",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "delete box by id",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned delete box",
+            "schema": {
+              "$ref": "#/definitions/Box"
+            }
+          }
+        }
+      }
+    },
+
+
+
+    "/materials/createMaterials": {
+      "post": {
+        "summary": "create material",
+        "tags": [
+          "materials"
+        ],
+        "description": "Materials",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "material",
+            "in": "body",
+            "description": "create material",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned create Material",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        }
+      }
+    },
+    "/materials/getListMaterials": {
+      "get": {
+        "summary": "getListMaterials",
+        "tags": [
+          "materials"
+        ],
+        "description": "Materials",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned create box",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        }
+      }
+    },
+    "/materials/updateMaterials/{id}": {
+      "put": {
+        "summary": "put id Material",
+        "tags": [
+          "materials"
+        ],
+        "description": "Materials",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "update Material by id",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          },
+          {
+            "name": "material",
+            "in": "body",
+            "description": "update material",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned update Material",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        }
+      }
+    },
+    "/materials/getIdMaterials/{id}": {
+      "get": {
+        "summary": "get id Material",
+        "tags": [
+          "materials"
+        ],
+        "description": "Materials",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "get Material by id",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned listID of Material",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        }
+      }
+    },
+    "/materials/deleteMaterials/{id}": {
+      "delete": {
+        "summary": "deleteMaterials",
+        "tags": [
+          "materials"
+        ],
+        "description": "Materials",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "delete Material by id",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned delete Material",
+            "schema": {
+              "$ref": "#/definitions/Material"
+            }
+          }
+        }
+      }
+    },
+    "/adminPanel/login": {
+      "post": {
+        "summary": "create material",
+        "tags": [
+          "admin"
+        ],
+        "description": "Admin",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "admin",
+            "in": "body",
+            "description": "create admin",
+            "schema": {
+              "$ref": "#/definitions/Admin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "it returned create admin",
+            "schema": {
+              "$ref": "#/definitions/Admin"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "definitions": {
+
+    "Box": {
+      "properties": {
+
+        "name": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "string"
+        }
+      }
+    },
+    "Material": {
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Admin": {
+      "properties": {
+        "userName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "databaseAddress":"production address" ,
+  "jwtPrivateKey": "localhost",
+  "port": "8080",
+  "jwtPrivateKey": "jwtPrivateKey"
+
+}
