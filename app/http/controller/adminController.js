@@ -14,6 +14,8 @@ class AdminController {
         res.send(list);
     }
 
+
+
     async createDate(req, res) {
         const {error} = validateCreateDate(req.body);
         const data=req.body;

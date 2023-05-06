@@ -6,15 +6,42 @@ const moment = require('moment');
 const excelJS = require("exceljs");
 const fs = require('fs');
 const path = require('path')
-
+const http = require('http')
 class MaterialController {
+
+    async downloadMaterial(req, res) {
+        const fileUrl = './input1.txt'; // Replace with the actual file URL
+        const fileName = 'input2.txt'; // Replace with the desired file name
+
+        const file = fs.createWriteStream(fileName);
+        const request = http.get(fileUrl, function(response) {
+            response.pipe(file);
+            file.on('finish', function() {
+                file.close(function() {
+                    res.download(path.join(__dirname, fileName), function(err) {
+                        if (err) {
+                            // Handle error while downloading
+                            console.error('Error while downloading:', err);
+                        } else {
+                            // Clean up the downloaded file
+                            fs.unlinkSync(fileName);
+                        }
+                    });
+                });
+            });
+        }).on('error', function(err) {
+            // Handle error while making the request
+            console.error('Error while making the request:', err);
+        });
+
+    }
+
 
     async createMaterials(req, res) {
         const {error} = validateCreateMaterials(req.body);
         if (error) return res.status(400).send(error.message);
         const Time = moment().calendar();
         let Materials = new MaterialsModel(
-
             _.pick(req.body, [
                 'name',
             ]),

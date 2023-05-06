@@ -2,9 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const winston = require('winston');
+const fs = require('fs');
+const mime = require('mime');
+const generateFakeUser=require('../app/http/middleware/faker');
+const User=require('./models/fake')
 require('dotenv').config();
 const config =require("config");
 const moment = require('jalali-moment');
+const validator=require('express-validator')
 moment().locale('fa').format('YYYY/M/D');
 const app = express();
 const csv = require('csvtojson');
@@ -34,7 +39,7 @@ const session = require('express-session');
 const passport = require("passport");
 const {date} = require("joi");
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-
+app.set(validator)
 const GOOGLE_CLIENT_ID = '905389007993-g6i47uhuc6grubd74nehoht9l7k58mag.apps.googleusercontent.com'; //Client ID const
 const GOOGLE_CLIENT_SECRET = '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'; //Client secret
 app.set('view engine', 'ejs');
@@ -52,6 +57,9 @@ class Application {
         this.setupCsv();
         this.setupDeviceDetector();
         this.setupJalaliMoment();
+        this.setupDownload();
+        this.setupFake();
+
     }
 
 
@@ -67,12 +75,31 @@ class Application {
    }
 
     setupExpressServer() {
-        const port = process.env.myPort || 8080;
+        const port = process.env.myPort || 4343;
         http.listen(port, (err) => {
             if (err) console.log(err);
             else console.log("app listen to port : ".blue+port);
         })
 
+    }
+
+    setupDownload(){
+        app.get('/download', (req, res) => {
+            const filePath = '/Users/arshia/Desktop/arshia/food.api/node-zar/uploads/1680963446743-csvFile.csv'; // Replace with the actual file path
+
+            // Check if the file exists
+            if (fs.existsSync(filePath)) {
+                // Set the appropriate headers for the response
+                res.setHeader('Content-Disposition', `attachment; filename=${path.basename(filePath)}`);
+                res.setHeader('Content-Type', 'application/octet-stream');
+
+                // Create a readable stream to the file and pipe it to the response
+                const fileStream = fs.createReadStream(filePath);
+                fileStream.pipe(res);
+            } else {
+                res.status(404).send('File not found');
+            }
+        });
     }
 
     setupSocketIo(){
@@ -132,10 +159,11 @@ class Application {
     }
 
     setupJalaliMoment(){
-       var date= moment('2023-5-02', 'YYYY-M-D')
+        var A = new Date();
+       var date= moment(A, 'YYYY-M-D')
             .locale('fa')
             .format('YYYY/M/D');
-        console.log(date)
+        console.log("today's date : "+date)
     }
 
     setupEmail(){
@@ -199,21 +227,36 @@ class Application {
     }
 
 
+    setupFake(){
+        app.get('/importUsers', async (req, res) => {
+            try {
+                const fakeUsers = Array.from({ length: 30 }, generateFakeUser);
 
+                await User.create(fakeUsers);
+                res.send('Fake users imported successfully!');
+            } catch (error) {
+                console.error('Error importing users:', error);
+                res.status(500).send('An error occurred during user import.');
+            }
+        });
+    }
 
     setupMongoose() {
         mongoose.set('strictQuery', true);
-        const job = schedule.scheduleJob('*/5 * * * *', function(){
+        const job = schedule.scheduleJob('*/9 * * * *', function(){
             console.log('run'.blue);
         });
         const mongodbOptions = {
             useNewUrlParser: true,
             useUnifiedTopology: true
         }
-        mongoose.connect("mongodb://127.0.0.1:27017/zar", mongodbOptions).then(() => {
+        mongoose.connect('mongodb://127.0.0.1:27017/zar', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }).then(() => {
             console.log("db connected".green);
         }).catch(err => {
-            console.log("db not connected".green, err);
+            console.log("db not connected".red, err);
         })
     }
 
@@ -297,6 +340,7 @@ class Application {
     }
 
     setupConfigs() {
+
         console.log(config.get("databaseAddress").yellow);
         winston.add(new winston.transports.File({filename: 'Error-log.log'}));
         winston.add(new winston.transports.MongoDB({
