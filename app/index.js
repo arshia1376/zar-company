@@ -1,7 +1,12 @@
 const express = require("express");
+const mongoose = require("mongoose");
+const app = express();
+const http = require('http').Server(app);
 const cors = require("cors");
 const morgan = require("morgan");
 const winston = require('winston');
+const bodyParser = require('body-parser');
+const request = require('request');
 const fs = require('fs');
 const mime = require('mime');
 const generateFakeUser=require('../app/http/middleware/faker');
@@ -11,12 +16,11 @@ const config =require("config");
 const moment = require('jalali-moment');
 const validator=require('express-validator')
 moment().locale('fa').format('YYYY/M/D');
-const app = express();
+
 const csv = require('csvtojson');
 const CsvParser = require("json2csv").Parser;
 const schedule = require('node-schedule');
 const path = require('path')
-const mongoose = require("mongoose");
 const materialsModel=require("./models/materials");
 const Tutorial = materialsModel.tutorials;
 const multer=require("multer")
@@ -27,7 +31,6 @@ require("winston-mongodb");
 const Error = require("./http/middleware/Error");
 const DeviceDetector = require('node-device-detector');
 const api = require("./routes/api");
-const http = require('http').Server(app);
 const { UniqueString, UniqueNumber, UniqueStringId,UniqueNumberId,UniqueOTP,UniqueCharOTP } = require('unique-string-generator');
 const io = require('socket.io')(http);
 const swaggerDocument = require('./swagger.json');
@@ -35,6 +38,8 @@ const helmet = require("helmet");
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const colors = require('colors');
 const uploads=multer({dest:'uploads/'})
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended : false}));
 const session = require('express-session');
 const passport = require("passport");
 const {date} = require("joi");
@@ -59,6 +64,7 @@ class Application {
         this.setupJalaliMoment();
         this.setupDownload();
         this.setupFake();
+        this.recaptcha();
 
     }
 
@@ -74,14 +80,7 @@ class Application {
        // console.log('result parse', result);
    }
 
-    setupExpressServer() {
-        const port = process.env.myPort || 4343;
-        http.listen(port, (err) => {
-            if (err) console.log(err);
-            else console.log("app listen to port : ".blue+port);
-        })
 
-    }
 
     setupDownload(){
         app.get('/download', (req, res) => {
@@ -116,6 +115,70 @@ class Application {
         });
 
     }
+
+    recaptcha(){
+        app.get('/recaptcha',function(req,res) {
+
+            // Sending our HTML file to browser.
+
+            res.render('../app/views/pages/auth/recapcha');
+
+        });
+
+
+
+        app.post('/submit',function(req,res){
+
+            // g-recaptcha-response is the key that browser will generate upon form submit.
+
+            // if its blank or null means user has not selected the captcha, so return the error.
+
+            if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
+
+                return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
+
+            }
+
+            // Put your secret key here.
+
+            var secretKey = "6LdpR-slAAAAANHr1K5oaJ2kbF3rwvF3FYAC_tYw";
+
+            // req.connection.remoteAddress will provide IP address of connected user.
+
+            var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
+
+            // Hitting GET request to the URL, Google will respond with success or error scenario.
+
+            request(verificationUrl,function(error,response,body) {
+
+                body = JSON.parse(body);
+
+                // Success will be true or false depending upon captcha validation.
+
+                if(body.success !== undefined && !body.success) {
+
+                    return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
+
+                }
+
+                res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
+
+            });
+
+        });
+
+
+
+// This will handle 404 requests.
+
+        app.use("*",function(req,res) {
+
+            res.status(404).send("404");
+
+        })
+
+}
+
 
     setupCsv(){
         app.use(express.static("uploads"));
@@ -258,6 +321,15 @@ class Application {
         }).catch(err => {
             console.log("db not connected".red, err);
         })
+    }
+
+    setupExpressServer() {
+        const port = process.env.myPort || 4343;
+        http.listen(port, (err) => {
+            if (err) console.log(err);
+            else console.log("app listen to port : ".blue+port);
+        })
+
     }
 
     setupAuthGoogle(){
