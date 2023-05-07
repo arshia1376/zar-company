@@ -5,6 +5,7 @@ const {validateCreateAdmin, loginValidator, validateCreateMaterials,validateCrea
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const MaterialsModel = require("../../models/materials");
+const DateModel = require("../../models/date");
 const moment = require('jalali-moment');
 
 
@@ -12,6 +13,40 @@ class AdminController {
     async getAdminList(req, res) {
         const list = await AdminModel.find().select('name lastName code adminUsername phoneNumber accessLevel');
         res.send(list);
+    }
+
+    async postDate(req, res) {
+        const {error} = validateCreateDate(req.body);
+        if (error) return res.status(400).send(error.message);
+        let Materials = new DateModel(
+            _.pick(req.body, [
+                'name',
+                'email',
+                'date',
+            ]),
+        );
+        Materials = await Materials.save();
+        // console.timeEnd("timer")
+        res.send(Materials);
+    }
+
+    async twoDate(req, res) {
+        try {
+            const { startDate, endDate } = req.query;
+            console.log("123123")
+            // Query the database for users with birthdates between the start and end dates
+            const users = await DateModel.find({
+                date: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate),
+                },
+            });
+
+            res.json(users);
+        } catch (error) {
+            console.error('Error retrieving users:', error);
+            res.status(500).send('An error occurred while retrieving users.');
+        }
     }
 
 

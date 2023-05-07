@@ -18,7 +18,9 @@ const validateCreateAdmin = (data) => {
 
 const validateCreateDate = (data) => {
     const schema = Joi.object({
-        date: Joi.string().required(),
+        name: Joi.string().required(),
+        email: Joi.string(),
+        date: Joi.date().required(),
 
     });
     return schema.validate(data);

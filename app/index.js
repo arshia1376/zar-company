@@ -66,6 +66,7 @@ class Application {
         this.setupFake();
         this.recaptcha();
 
+
     }
 
 
@@ -84,20 +85,8 @@ class Application {
 
     setupDownload(){
         app.get('/download', (req, res) => {
-            const filePath = '/Users/arshia/Desktop/arshia/food.api/node-zar/uploads/1680963446743-csvFile.csv'; // Replace with the actual file path
-
-            // Check if the file exists
-            if (fs.existsSync(filePath)) {
-                // Set the appropriate headers for the response
-                res.setHeader('Content-Disposition', `attachment; filename=${path.basename(filePath)}`);
-                res.setHeader('Content-Type', 'application/octet-stream');
-
-                // Create a readable stream to the file and pipe it to the response
-                const fileStream = fs.createReadStream(filePath);
-                fileStream.pipe(res);
-            } else {
-                res.status(404).send('File not found');
-            }
+            const imagePath = path.join(__dirname, '../files', '1.jpeg'); // Replace 'example.jpg' with your image filename
+            res.download(imagePath, '1.jpeg'); // Replace 'example.jpg' with your desired downloaded file name
         });
     }
 
