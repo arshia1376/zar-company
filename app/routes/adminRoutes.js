@@ -15,6 +15,7 @@ var upload = multer({ storage: storage });
 
 router.post("/adminCreate",controller.createAdmin);
 router.post("/postDate",controller.postDate);
+router.get("/phoneNumber",controller.phoneNumber);
 router.post("/createDate",controller.createDate);
 router.post("/login",bruteforce.prevent,controller.login)
 router.post("/adminSearch",controller.adminSearch);
@@ -22,6 +23,7 @@ router.post("/adminSearch",controller.adminSearch);
 
 router.get("/getAdminList",controller.getAdminList);
 router.get("/twoDate",controller.twoDate);
+router.get("/setDate",controller.setDate);
 
 
 router.get("/getAdminId/:id",controller.getIdAdmin);

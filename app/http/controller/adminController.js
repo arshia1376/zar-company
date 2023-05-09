@@ -1,7 +1,13 @@
 const AdminModel = require("../../models/admin");
 const _ = require("lodash");
+const phone = require('node-phonenumber');
 const bcrypt = require("bcrypt");
-const {validateCreateAdmin, loginValidator, validateCreateMaterials,validateCreateDate} = require("../validator/adminValidator")
+const {
+    validateCreateAdmin,
+    loginValidator,
+    validateCreateMaterials,
+    validateCreateDate
+} = require("../validator/adminValidator")
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const MaterialsModel = require("../../models/materials");
@@ -10,6 +16,15 @@ const moment = require('jalali-moment');
 
 
 class AdminController {
+
+    async phoneNumber(req,res){
+        const phoneNumberString = req.query.phone;
+        const phoneUtil = phone.PhoneNumberUtil.getInstance();
+        const phoneNumber = phoneUtil.parse(phoneNumberString,'IR');
+        const toNumber = phoneUtil.format(phoneNumber, phone.PhoneNumberFormat.INTERNATIONAL);
+        res.send(toNumber)
+    }
+
     async getAdminList(req, res) {
         const list = await AdminModel.find().select('name lastName code adminUsername phoneNumber accessLevel');
         res.send(list);
@@ -32,7 +47,7 @@ class AdminController {
 
     async twoDate(req, res) {
         try {
-            const { startDate, endDate } = req.query;
+            const {startDate, endDate} = req.query;
             console.log("123123")
             // Query the database for users with birthdates between the start and end dates
             const users = await DateModel.find({
@@ -49,20 +64,37 @@ class AdminController {
         }
     }
 
+    async setDate(req, res) {
+        const specificDate = ['2023-01-01', '2021-01-01', '2019-01-01', '2010-02-01'];
+
+
+        const {startDate} = req.query;
+        console.log(startDate)
+        for (let i = 0; i < specificDate.length; i++) {
+            console.log(specificDate[i])
+            if (specificDate[i] == startDate) {
+                res.send("lock")
+            }
+        }
+
+        res.send("accept")
+
+        // Query the database for users with birthdates between the start and end dates
+
+    }
 
 
     async createDate(req, res) {
         const {error} = validateCreateDate(req.body);
-        const data=req.body;
+        const data = req.body;
         if (error) return res.status(400).send(error.message);
-        var datee= moment(data.date, 'YYYY-M-D')
+        var datee = moment(data.date, 'YYYY-M-D')
             .locale('fa')
             .format('YYYY/M/D');
-        console.log(datee+":test")
+        console.log(datee + ":test")
         data.date = datee;
 
         let Date = new MaterialsModel(
-
             _.pick(data, [
                 'date',
             ]),
